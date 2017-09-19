@@ -63,16 +63,24 @@ def _handle_zeros_in_scale(scale, copy=True):
 
     This happens in most scalers when we have constant features.'''
 
+    try:
+        dt = scale.dtype
+    except:
+        dt = np.double
+    if dt.kind is 'f':
+        eps = np.finfo(dt).tiny # smallest positive normal number
+    else:
+        eps = 0.0
     # if we are fitting on 1D arrays, scale might be a scalar
     if np.isscalar(scale):
-        if scale == .0:
+        if scale  <= eps:
             scale = 1.
         return scale
     elif isinstance(scale, np.ndarray):
         if copy:
             # New array to avoid side-effects
             scale = scale.copy()
-        scale[scale == 0.0] = 1.0
+        scale[scale <= eps] = 1.0
         return scale
 
 
